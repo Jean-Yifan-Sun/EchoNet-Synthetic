@@ -168,3 +168,4 @@ experiments/
 wandb/
 samples/
 .vscode/
+jobs/bask/res/

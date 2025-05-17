@@ -1,8 +1,8 @@
 import argparse
 import io
-
 import requests
 import torch
+import yaml  # 修复：缺少yaml导入
 from omegaconf import OmegaConf
 
 from diffusers import AutoencoderKL
@@ -121,13 +121,13 @@ def vae_pt_to_vae_diffuser(
     output_path: str,
 ):
     # Only support V1
-    r = requests.get(
-        "https://raw.githubusercontent.com/CompVis/stable-diffusion/main/configs/stable-diffusion/v1-inference.yaml"
-    )
-    io_obj = io.BytesIO(r.content)
+    # Replace the online YAML with a local YAML file
+    local_yaml_path = "/bask/projects/c/chenhp-data-gen/yifansun/project/EchoNet-Synthetic/echosyn/vae/defult_vae.yaml"  # Update this with the path to your local YAML file
+    with open(local_yaml_path, "r") as f:
+        original_config = yaml.safe_load(f)
 
-    original_config = yaml.safe_load(io_obj)
-    image_size = 512
+    # original_config = yaml.safe_load(io_obj)
+    image_size = 96
     device = "cuda" if torch.cuda.is_available() else "cpu"
     if checkpoint_path.endswith("safetensors"):
         from safetensors import safe_open
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--vae_pt_path", default=None, type=str, required=True, help="Path to the VAE.pt to convert.")
-    parser.add_argument("--dump_path", default=None, type=str, required=True, help="Path to the VAE.pt to convert.")
+    parser.add_argument("--dump_path", default=None, type=str, required=True, help="Path to save the converted VAE.")
 
     args = parser.parse_args()
 

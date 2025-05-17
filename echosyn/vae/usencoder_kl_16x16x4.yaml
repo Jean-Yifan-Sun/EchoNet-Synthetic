@@ -14,7 +14,7 @@ model:
     ddconfig:
       double_z: True
       z_channels: 4
-      resolution: 112
+      resolution: 96
       in_channels: 3
       out_ch: 3
       ch: 128
@@ -26,18 +26,18 @@ model:
 data:
   target: main.DataModuleFromConfig
   params:
-    batch_size: 32
-    num_workers: 16
+    batch_size: 64
+    num_workers: 2
     train:
       target: taming.data.custom.CustomTrain
       params:
         training_images_list_file: ${oc.env:DATADIR}/train.txt
-        size: 112
+        size: 96
     validation:
       target: taming.data.custom.CustomTest
       params:
         test_images_list_file: ${oc.env:DATADIR}/val.txt
-        size: 112
+        size: 96
 
 lightning:
   callbacks:
@@ -51,4 +51,4 @@ lightning:
   trainer:
     benchmark: True
     accumulate_grad_batches: 2
-    max_epochs: 1000
+    max_epochs: 2000

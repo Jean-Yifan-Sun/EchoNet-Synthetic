@@ -7,9 +7,12 @@ from PIL import Image
 from glob import glob
 from tqdm import tqdm
 from einops import rearrange
+from torchvision.transforms import ToTensor,ToPILImage
 
 from echosyn.common import load_model, save_as_img
 
+totensor = ToTensor()
+toimage = ToPILImage()
 
 class ImageLoader(Dataset):
     def __init__(self, all_paths):
@@ -22,9 +25,10 @@ class ImageLoader(Dataset):
         path = self.image_paths[idx]
         image = Image.open(path)
 
-        image = np.array(image)
-        image = image / 128.0 - 1 # [-1, 1]
-        image = rearrange(image, 'h w c -> c h w')
+        image = totensor(image) * 2 - 1
+        image = torch.cat([image]*3,dim=0)  # Convert to 3 channels
+        # image = image / 128.0 - 1 # [-1, 1]
+        # image = rearrange(image, 'h w c -> c h w')
 
         return image, self.image_paths[idx]
 
@@ -46,7 +50,7 @@ if __name__ == "__main__":
     # Load the videos
     folder_input = os.path.abspath(args.input)
     folder_output = os.path.abspath(args.output)
-    all_images = glob(os.path.join(folder_input, "**", "*.jpg"), recursive=True)
+    all_images = glob(os.path.join(folder_input, "**", "*.png"), recursive=True)
     print(f"Found {len(all_images)} images in {folder_input}")
 
     # prepare output folder
